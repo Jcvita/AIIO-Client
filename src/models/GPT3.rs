@@ -1,6 +1,6 @@
 use std::env; //environment variables 
 
-enum Model {
+enum GPT3Model {
     text_davinci_002,
     text_curie_001,
     text_babbage_001,
@@ -10,7 +10,7 @@ enum Model {
 }
 
 struct GPT3 {
-    model: Model,
+    model: GPT3Model,
     temperature: f32,
     tokens: u16,
     stop_sequences: Vec<String>,
@@ -23,7 +23,7 @@ struct GPT3 {
 }
 
 impl GPT3 {
-    fn init(model: Model) -> GPT3 {
+    fn init(model: GPT3Model) -> GPT3 {
         GPT3 {
             model,
             temperature: 0.7,
