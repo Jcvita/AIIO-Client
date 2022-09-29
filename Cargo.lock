@@ -3,7 +3,7 @@
 version = 3
 
 [[package]]
-name = "AIIO-server"
+name = "AIIO-client"
 version = "0.1.0"
 dependencies = [
  "dotenv",
