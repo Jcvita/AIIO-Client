@@ -1,1 +1,1 @@
-pub mod GPT3;
+pub mod gpt3;
