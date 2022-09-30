@@ -1,27 +1,40 @@
 use dotenv::dotenv;
 use notify_rust::Notification;
+use clipboard::{ClipboardProvider, ClipboardContext};
+use std::{thread, time};
 //https://github.com/obv-mikhail/InputBot for global keyboard inputs
-use crate::models::Completion;
 use crate::models::gpt3::{
     GPT3, 
     GPT3Model
 };
 
 pub mod models;
-fn main() {
-    dotenv().ok();
 
-    let mut ai = GPT3::init(GPT3Model::Davinci);
-    let result = match ai
+//takes in any model that has the .completion()
+fn generate_code_comments(model: GPT3, input_code: String, input_language: Option<String>) -> String {
+    "".to_string()
+}
+
+#[tokio::main]
+async fn main() {
+    dotenv().ok();
+    //Initialize clipboard access
+    let mut clip: ClipboardContext = ClipboardProvider::new().unwrap();
+
+    let mut ai: GPT3 = GPT3::init(GPT3Model::Davinci);
+    let result: String = match ai
         .tokens(64)
         .temperature(0.25)
-        .completion(String::from("The quick brown fox")) {
-        Ok(res) => res.unwrap(),
-        Err(e) => panic!("Error: {:?}", e)
-    };
+        .completion("The quick brown fox").await {
+            Ok(out) => out,
+            Err(e) => panic!("Completion failed: {:?}", e)
+        };
     
-    Notification::new()
+    match Notification::new()
         .appname("GPT3")
         .body(&result)
-        .show();
+        .show() {
+            Ok(_) => {},
+            Err(e) => panic!("Notification failed to fire: {:?}", e)
+        };
 }

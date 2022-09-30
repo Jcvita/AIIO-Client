@@ -1,5 +1,10 @@
+use crate::models::openai::*;
+
 use std::fmt;
-use std::env; //environment variables 
+use std::env; use reqwest::Client;
+//environment variables 
+use reqwest;
+use serde_json::{json, Value, from_value};
 
 //TODO fetch available models from GET https://api.openai.com/v1/models
 #[derive(Debug, Clone, Copy)]
@@ -34,7 +39,8 @@ pub struct GPT3 {
     pub freq_penalty: f32,
     pub presence_penalty: f32,
     pub best_of: u8,
-    pub api_key: String
+    pub api_key: String,
+    rest_client: Client
 }
 
 impl GPT3 {
@@ -45,6 +51,8 @@ impl GPT3 {
             None => panic!("$OPENAI_API_KEY is not set")
         };
 
+        let rest_client = reqwest::Client::new();
+
         GPT3 {
             model,
             temperature: 0.7,
@@ -54,7 +62,8 @@ impl GPT3 {
             freq_penalty: 0.0,
             presence_penalty: 0.0,
             best_of: 1,
-            api_key
+            api_key,
+            rest_client
         }
     }
 
@@ -85,5 +94,36 @@ impl GPT3 {
     pub fn best_of(&mut self, num_completions: u8) -> &mut GPT3 {
         self.best_of = num_completions;
         self
+    }
+
+    pub async fn completion(&self, prompt: &str) -> reqwest::Result<String> {
+        let client = &self.rest_client;
+
+        let data = json!({
+                "model": self.model.to_string(),
+                "prompt": prompt,
+                "temperature": self.temperature,
+                "max_tokens": self.tokens,
+                "stop_sequence": self.stop_sequences,
+                "top_p": self.top_p,
+                "frequency_penalty": self.freq_penalty,
+                "presence_penalty": self.presence_penalty,
+                "best_of": self.best_of,
+                "n": 1,
+        });
+        let res = client.post("https://api.openai.com/v1/completions")
+            .header("Authorization", format!("Bearer {}", (*self.api_key).to_string()))
+            .header("Content-Type", "application/json")
+            .json(&data)
+            .send()
+            .await?
+            .json::<Value>()
+            .await?;
+        // let output = from_value(res).unwrap();
+        
+        //TODO classify res value and conver to corresponding object. make this process easier to define structs as output
+
+        Ok(String::from(""))
+        
     }
 }
