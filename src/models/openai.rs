@@ -1,5 +1,6 @@
+use std::Result;
 use serde;
-use serde_json::from_value;
+use serde_json::{Value, from_value};
 
 // #[derive(serde::Deserialize, Debug)]
 #[derive(Debug)]
@@ -52,6 +53,28 @@ pub enum Output {
     Completion(Completion),
     ErrorResponse(ErrorResponse)
 }
+
+impl FromValue for Completion {
+    pub fn from_value(val: &Value) -> Completion {
+        
+    }
+    pub fn from_value_strict(val: &Value) -> Result<Completion, &'static str) {
+    
+    }
+}
+
+impl FromValue for ErrorResponse {
+    
+}
+
+pub fn classify_response_value(value: Value) -> Output {
+    if value.get("error") != None {
+        
+    }
+}
+
+// Uncomment the below if you want to make your own deserializer
+
 
 // pub trait Deserialize<'de>: Sized {
 //     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
